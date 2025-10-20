@@ -1,0 +1,242 @@
+Sure — here’s a complete, clear, and structured set of assignment answers for questions 11–15 related to a flight reservation system database and its implementation in both SQL and NoSQL.
+
+
+---
+
+11. Identify entities such as flights, passengers, bookings, and payments
+
+In a Flight Reservation System, the main entities and their attributes are:
+
+Entity	Attributes	Description
+
+Passenger	Passenger_ID (PK), Name, Gender, DOB, Email, Phone	Stores details of passengers.
+Flight	Flight_ID (PK), Flight_Number, Airline, Source, Destination, Departure_Time, Arrival_Time, Seats_Available, Fare	Contains flight schedule and availability info.
+Booking	Booking_ID (PK), Passenger_ID (FK), Flight_ID (FK), Booking_Date, Seat_Number, Status	Represents a booking made by a passenger for a flight.
+Payment	Payment_ID (PK), Booking_ID (FK), Payment_Date, Amount, Payment_Method, Payment_Status	Contains transaction details for each booking.
+Admin/User (optional)	User_ID (PK), Username, Password, Role	Used for managing system users (staff, admin).
+
+
+Relationships:
+
+One Passenger can have many Bookings.
+
+One Flight can have many Bookings.
+
+One Booking has one Payment.
+
+
+
+---
+
+12. Apply normalization techniques and explain functional dependencies
+
+Step 1: Unnormalized Form (UNF)
+
+Suppose an initial table:
+
+| Passenger_ID | Name | Flight_Number | Source | Destination | Booking_Date | Payment_Amount |
+
+This table has repeating data (e.g., passenger taking multiple flights).
+
+
+---
+
+Step 2: 1st Normal Form (1NF)
+
+Remove repeating groups.
+
+Each column holds atomic (single) values.
+
+
+Split into:
+
+Passenger(Passenger_ID, Name, Email, Phone)
+
+Flight(Flight_ID, Flight_Number, Source, Destination, Fare)
+
+Booking(Booking_ID, Passenger_ID, Flight_ID, Booking_Date)
+
+Payment(Payment_ID, Booking_ID, Amount, Payment_Date)
+
+
+
+---
+
+Step 3: 2nd Normal Form (2NF)
+
+Ensure every non-key attribute depends on the whole primary key.
+
+Remove partial dependencies.
+
+
+Example: In Booking, Booking_Date depends on Booking_ID, not on Passenger_ID alone.
+
+
+---
+
+Step 4: 3rd Normal Form (3NF)
+
+Remove transitive dependencies (when non-key attributes depend on other non-key attributes).
+
+
+For example:
+If Flight(Fare) depends on Flight_Number, not on other attributes → It’s fine.
+But if Passenger(Age) depends on DOB, then remove Age.
+
+
+---
+
+Functional Dependencies Examples
+
+Passenger_ID → Name, Email, Phone
+
+Flight_ID → Flight_Number, Source, Destination, Fare
+
+Booking_ID → Passenger_ID, Flight_ID, Booking_Date, Status
+
+Payment_ID → Booking_ID, Amount, Payment_Method, Payment_Status
+
+
+All non-key attributes depend only on the key → 3NF achieved.
+
+
+---
+
+13. SQL Queries
+
+a) Retrieve available flights
+
+SELECT Flight_ID, Flight_Number, Airline, Source, Destination, Departure_Time, Arrival_Time, Seats_Available, Fare
+FROM Flight
+WHERE Source = 'Hyderabad' AND Destination = 'Delhi' AND Seats_Available > 0;
+
+b) Book a ticket
+
+INSERT INTO Booking (Booking_ID, Passenger_ID, Flight_ID, Booking_Date, Seat_Number, Status)
+VALUES ('B123', 'P101', 'F789', CURRENT_DATE, '12A', 'Confirmed');
+
+-- Update seat count
+UPDATE Flight
+SET Seats_Available = Seats_Available - 1
+WHERE Flight_ID = 'F789';
+
+c) Cancel a booking
+
+UPDATE Booking
+SET Status = 'Cancelled'
+WHERE Booking_ID = 'B123';
+
+-- Re-add seat
+UPDATE Flight
+SET Seats_Available = Seats_Available + 1
+WHERE Flight_ID = (SELECT Flight_ID FROM Booking WHERE Booking_ID = 'B123');
+
+d) View bookings of a passenger
+
+SELECT B.Booking_ID, F.Flight_Number, F.Source, F.Destination, B.Status
+FROM Booking B
+JOIN Flight F ON B.Flight_ID = F.Flight_ID
+WHERE B.Passenger_ID = 'P101';
+
+
+---
+
+14. Explain concurrency control in multiple ticket booking scenarios
+
+Problem: When multiple users try to book the last few seats of the same flight simultaneously, data inconsistencies can occur (e.g., overbooking).
+
+Concurrency Control Techniques:
+
+Method	Explanation
+
+Locking	Apply pessimistic locks on a flight record when a user starts booking until transaction completes. Prevents others from modifying seat count.
+Transactions (ACID)	Use SQL transactions — BEGIN, COMMIT, ROLLBACK — to ensure all seat updates are atomic.
+Isolation Levels	Set isolation level to SERIALIZABLE or REPEATABLE READ to avoid race conditions.
+Optimistic Concurrency	Allow parallel transactions but check seat availability again before confirming.
+Queue-based Booking	Use message queues to process booking requests sequentially.
+
+
+Example (SQL Transaction):
+
+BEGIN TRANSACTION;
+
+SELECT Seats_Available FROM Flight WHERE Flight_ID = 'F789' FOR UPDATE;
+
+IF Seats_Available > 0 THEN
+   UPDATE Flight SET Seats_Available = Seats_Available - 1 WHERE Flight_ID = 'F789';
+   INSERT INTO Booking (Booking_ID, Passenger_ID, Flight_ID, Status) VALUES ('B124', 'P102', 'F789', 'Confirmed');
+END IF;
+
+COMMIT;
+
+
+---
+
+15. Implement CRUD operations in a modern NoSQL database for reservation tracking
+
+Assume we use MongoDB (a document-oriented NoSQL DB).
+
+a) Create (Insert)
+
+db.bookings.insertOne({
+  booking_id: "B201",
+  passenger_id: "P301",
+  flight_id: "F123",
+  booking_date: new Date(),
+  status: "Confirmed",
+  payment: {
+    amount: 6500,
+    method: "Credit Card",
+    status: "Paid"
+  }
+});
+
+b) Read (Find)
+
+db.bookings.find({ passenger_id: "P301" });
+
+c) Update
+
+db.bookings.updateOne(
+  { booking_id: "B201" },
+  { $set: { status: "Cancelled", "payment.status": "Refund Initiated" } }
+);
+
+d) Delete
+
+db.bookings.deleteOne({ booking_id: "B201" });
+
+e) Example Data Structure (Document Model)
+
+{
+  "booking_id": "B201",
+  "passenger_id": "P301",
+  "flight_id": "F123",
+  "status": "Confirmed",
+  "booking_date": "2025-10-20T10:00:00Z",
+  "payment": {
+    "amount": 6500,
+    "method": "Credit Card",
+    "status": "Paid"
+  }
+}
+
+
+---
+
+✅ Summary
+
+Question	Concept
+
+11	Entity Identification & Relationships
+12	Normalization up to 3NF + Functional Dependencies
+13	SQL Queries for Booking Operations
+14	Concurrency Control Techniques
+15	CRUD Operations using NoSQL (MongoDB Example)
+
+
+
+---
+
+Would you like me to format this as a ready-to-submit Word or PDF assignment (with headings, tables, and code formatting)?
+
