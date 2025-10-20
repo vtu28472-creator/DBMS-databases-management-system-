@@ -1,0 +1,112 @@
+TASK 11: Backing up and recovery in databases CO4, K3 
+
+Perform following backup and recovery scenarios.
+
+a) Recovering a NOARCHIVELOG Database with Incremental Backups
+
+b) Restoring the Server Parameter File
+
+c) Performing Recovery with a Backup Control File
+
+Scenario 1: Recovering a NOARCHIVELOG Database with Incremental 
+
+Backups
+
+-- Step 1: Backup Database
+
+BACKUP DATABASE [database_name] TO DISK = 'backup_file.bak' WITH 
+
+NOFORMAT, NOINIT, NAME = 'Full Database Backup', SKIP, REWIND, 
+
+NOUNLOAD, STATS = 10
+
+-- Step 2: Create Incremental Backup
+
+BACKUP DATABASE [database_name] TO DISK = 'incremental_backup.bak' 
+
+WITH DIFFERENTIAL, NOFORMAT, NOINIT, NAME = 'Incremental 
+
+Database Backup', SKIP, REWIND, NOUNLOAD, STATS = 10
+
+-- Step 3: Simulate Data Loss
+
+-- Intentionally delete or modify data.
+
+-- Step 4: Restore Database
+
+RESTORE DATABASE [database_name] FROM DISK = 'backup_file.bak' WITH 
+
+REPLACE
+
+-- Step 5: Apply Incremental Backup
+
+RESTORE DATABASE [database_name] FROM DISK = 
+
+'incremental_backup.bak' WITH REPLACE
+
+-- Step 6: Recover Database
+
+RECOVER DATABASE [database_name]
+
+-- Step 7: Open Database
+
+ALTER DATABASE [database_name] SET ONLINE
+
+Scenario 2: Restoring the Server Parameter File (SPFILE)
+
+-- Step 1: Backup SPFILE
+
+BACKUP SERVER PARAMETER FILE TO FILE = 'spfile.bak';
+-- Step 2: Simulate SPFILE Loss
+
+-- Delete or modify SPFILE.
+
+-- Step 3: Restore SPFILE
+
+STARTUP MOUNT
+
+RESTORE SERVER PARAMETER FILE FROM FILE = 'spfile.bak';
+
+SHUTDOWN
+
+STARTUP
+
+Scenario 3: Performing Recovery with a Backup Control File
+
+-- Step 1: Backup Control File
+
+BACKUP CONTROLFILE TO FILE = 'controlfile.bak';
+
+-- Step 2: Simulate Control File Loss
+
+-- Delete or modify control file.
+
+-- Step 3: Restore Control File
+
+STARTUP MOUNT
+
+RESTORE CONTROLFILE FROM FILE = 'controlfile.bak';
+
+ALTER CONTROLFILE REUSE;
+
+-- Step 4: Recover Database
+
+RECOVER DATABASE USING BACKUP CONTROLFILE;
+
+-- Step 5: Open Database
+
+ALTER DATABASE OPEN RESETLOGS;
+
+SQL Server Commands:
+
+- BACKUP DATABASE
+
+- RESTORE DATABASE
+
+- RECOVER DATABASE
+
+- ALTER DATABASE
+
+- BACKUP SERVER PARAMETER FILE
+
+- RESTORE SERVER PARAMETER FILE
