@@ -1,0 +1,39 @@
+Task 5: Writing Join Queries, Equivalent, and/or Recursive Queries
+
+Case Study: Online Food Ordering System
+
+Objective: To perform advanced query processing and test its heuristics by designing 
+
+optimized complex queries and their equivalent forms, including recursive queries, for the 
+
+Online Food Ordering System.
+
+1. Join Queries
+
+Query 1: Retrieve all orders along with the corresponding customer's name.
+
+Expected Output:
+
+Query 2: Retrieve all menu items along with the restaurant name that offers them.
+
+Expected Output:
+
+Query 3: Retrieve all orders and their delivery status.
+Expected Output:
+
+INNER JOIN
+
+An INNER JOIN retrieves records that have matching values in both tables.
+
+Query: Retrieve all orders along with their customer names.
+
+Expected Output:
+
+LEFT OUTER JOIN
+
+A LEFT OUTER JOIN retrieves all records from the left table and the matched records 
+
+from the right table. If no match is found, NULL is returned for columns from the right table.
+
+Query: Retrieve all customers, even those who haven’t placed any orders.
+
