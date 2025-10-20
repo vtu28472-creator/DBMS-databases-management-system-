@@ -1,0 +1,245 @@
+Excellent — you’re referring to Use Case 2: Indexing various devices in an IoT platform, and you want Database Management System (DBMS) lab notes that explain:
+
+1. Why a JSON-based document database (like MongoDB) fits this use case, and
+
+
+2. Include a sample JSON document, indexing strategy, and MongoDB commands.
+
+
+
+Below is a ready-to-use lab note version — clear, formatted, and structured for submission.
+
+
+---
+
+🧪 DBMS LAB NOTE
+
+Experiment: Use Case 2 – Indexing Various Devices in an IoT Platform
+
+
+---
+
+Objective
+
+To understand how a JSON-based document database (MongoDB) supports indexing and storage of heterogeneous IoT device data, ensuring fast retrieval using multiple indexes like device_id, location_id, and parameters.
+
+
+---
+
+Theory
+
+Problem Background
+
+An IoT platform collects continuous data from a variety of devices (sensors, meters, cameras, etc.), each having:
+
+Different data formats,
+
+Unique attributes, and
+
+Varying update frequencies.
+
+
+Traditional relational databases require predefined schemas, which makes it hard to handle dynamic and evolving device structures.
+
+
+---
+
+Why MongoDB (JSON-based Document DB)?
+
+Feature	MongoDB Advantage
+
+Flexible Schema	Devices with different data fields can store data in JSON documents without predefined table schemas.
+JSON Format	IoT data (often JSON from APIs) maps naturally to MongoDB’s BSON (Binary JSON) format.
+Indexing	Supports single-field, compound, and multikey indexes for fields like device_id, location_id, or temperature.
+Scalability	Can handle large volumes of time-series IoT data efficiently.
+Query Flexibility	Enables powerful queries (filtering, aggregation, and grouping) using the MongoDB Query Language (MQL).
+
+
+
+---
+
+Data Model Design
+
+JSON Document Example
+
+{
+  "device_id": "D1003",
+  "device_type": "TemperatureSensor",
+  "location_id": "L12",
+  "location_name": "Warehouse 4",
+  "timestamp": "2025-10-20T09:45:00Z",
+  "parameters": {
+    "temperature": 27.6,
+    "humidity": 63.4,
+    "battery_level": 88
+  },
+  "status": "active"
+}
+
+Another device may have additional or different fields (e.g., GPS, CO₂ level):
+
+{
+  "device_id": "D2001",
+  "device_type": "AirQualitySensor",
+  "location_id": "L15",
+  "timestamp": "2025-10-20T09:46:10Z",
+  "parameters": {
+    "CO2": 410,
+    "PM2_5": 35,
+    "temperature": 26.5
+  },
+  "status": "active"
+}
+
+✅ Both documents coexist without schema conflicts.
+
+
+---
+
+Practical Implementation in MongoDB
+
+Step 1: Create Database and Collection
+
+use IoT_Platform;
+
+db.createCollection("device_data");
+
+
+---
+
+Step 2: Insert JSON Documents
+
+db.device_data.insertMany([
+  {
+    device_id: "D1003",
+    device_type: "TemperatureSensor",
+    location_id: "L12",
+    timestamp: ISODate("2025-10-20T09:45:00Z"),
+    parameters: { temperature: 27.6, humidity: 63.4 },
+    status: "active"
+  },
+  {
+    device_id: "D2001",
+    device_type: "AirQualitySensor",
+    location_id: "L15",
+    timestamp: ISODate("2025-10-20T09:46:10Z"),
+    parameters: { CO2: 410, PM2_5: 35, temperature: 26.5 },
+    status: "active"
+  }
+]);
+
+
+---
+
+Step 3: Create Indexes for Fast Retrieval
+
+Single-field index (on device_id):
+
+
+db.device_data.createIndex({ device_id: 1 });
+
+Compound index (on device_id + location_id):
+
+
+db.device_data.createIndex({ device_id: 1, location_id: 1 });
+
+Multikey index (for nested fields like parameters.temperature):
+
+
+db.device_data.createIndex({ "parameters.temperature": 1 });
+
+
+---
+
+Step 4: Query Examples
+
+Retrieve all data for a specific device:
+
+
+db.device_data.find({ device_id: "D1003" });
+
+Retrieve data from a specific location:
+
+
+db.device_data.find({ location_id: "L12" });
+
+Retrieve temperature readings above a threshold:
+
+
+db.device_data.find({ "parameters.temperature": { $gt: 28 } });
+
+Retrieve records combining multiple indexes (device + location):
+
+
+db.device_data.find({ device_id: "D2001", location_id: "L15" });
+
+
+---
+
+Step 5: Verify Indexes
+
+db.device_data.getIndexes();
+
+
+---
+
+Observation
+
+Index creation improved query response time significantly for high-volume IoT datasets.
+
+MongoDB’s flexible schema allowed new device data types without schema redesign.
+
+Compound indexes improved performance in multi-parameter queries.
+
+
+
+---
+
+Result
+
+Successfully implemented a JSON-based MongoDB data model to index IoT device data dynamically using multiple indexes such as device_id, location_id, and parameters.temperature.
+The system achieved fast retrieval, schema flexibility, and scalability for future device integration.
+
+
+---
+
+Conclusion
+
+MongoDB is ideal for IoT applications requiring:
+
+Dynamic and heterogeneous data models,
+
+Efficient multi-key indexing,
+
+High scalability for streaming sensor data.
+
+
+By using JSON documents and indexes, data from new device types can be integrated and queried efficiently without modifying the existing database structure.
+
+
+---
+
+Viva / Review Questions
+
+1. Why is MongoDB preferred for IoT data storage?
+
+
+2. What is the role of indexing in MongoDB?
+
+
+3. Explain the difference between single-field and compound indexes.
+
+
+4. How does MongoDB handle different device structures?
+
+
+5. Write a query to retrieve data from devices in a particular location with temperature above 30°C.
+
+
+
+
+---
+
+Would you like me to format this into a Word or PDF lab record (with headings, borders, and code formatting)?
+I can generate that instantly for submission.
+
