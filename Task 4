@@ -1,0 +1,36 @@
+Task 4: Using Functions in Queries and Writing Subqueries
+
+Case Study: Online Food Ordering System
+
+Objective: To perform advanced query processing and test heuristics by designing optimal 
+
+correlated and nested subqueries, such as finding summary statistics, for the Online Food 
+
+Ordering System.
+
+1. Using Aggregate Functions with Subqueries
+
+Query 1: Find the customer(s) who placed the highest order total.
+
+Output:
+
+Query 2: List all menu items whose price is above the average price of all menu items.
+
+Output:
+
+2. Nested Subqueries
+
+Query 1: Find the names of customers who placed orders worth more than 600.
+
+Output:
+Query 2: Retrieve the name of the restaurant(s) offering the most expensive menu item.
+
+Output:
+
+Query 1: Retrieve the category of menu items with the highest average price.
+
+Output:
+
+3. Correlated Subqueries
+
+Query 1: Find all orders where the total is greater than the average t
